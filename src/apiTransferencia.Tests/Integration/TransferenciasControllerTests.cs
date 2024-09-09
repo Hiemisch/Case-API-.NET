@@ -37,13 +37,13 @@ namespace apiTransferencia.apiTransferencia.Tests.Integration
         {
             var cliente1 = new ClienteDTO { Nome = "Teste1", NumeroConta = "12345", Saldo = 5000 };
             var cliente2 = new ClienteDTO { Nome = "Teste2", NumeroConta = "67890", Saldo = 2000 };
-            await _client.PostAsync("/api/v1/clientes", new StringContent(JsonSerializer.Serialize(cliente1), Encoding.UTF8, "application/json"));
-            await _client.PostAsync("/api/v1/clientes", new StringContent(JsonSerializer.Serialize(cliente2), Encoding.UTF8, "application/json"));
+            await _client.PostAsync("/api/clientes", new StringContent(JsonSerializer.Serialize(cliente1), Encoding.UTF8, "application/json"));
+            await _client.PostAsync("/api/clientes", new StringContent(JsonSerializer.Serialize(cliente2), Encoding.UTF8, "application/json"));
 
             var transferenciaDto = new TransferenciaDTO { NumeroContaOrigem = "12345", NumeroContaDestino = "67890", Valor = 1000 };
             var content = new StringContent(JsonSerializer.Serialize(transferenciaDto), Encoding.UTF8, "application/json");
 
-            var response = await _client.PostAsync("/api/v1/transferencias", content);
+            var response = await _client.PostAsync("/api/transferencias", content);
 
             response.EnsureSuccessStatusCode();
 
@@ -54,7 +54,7 @@ namespace apiTransferencia.apiTransferencia.Tests.Integration
         [Fact]
         public async Task Get_ListarHistoricoTransferencias_DeveRetornarHistorico()
         {
-            var response = await _client.GetAsync("/api/v1/transferencias/12345");
+            var response = await _client.GetAsync("/api/transferencias/12345");
 
             response.EnsureSuccessStatusCode();
 

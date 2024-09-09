@@ -40,7 +40,7 @@ namespace apiTransferencia.Tests.Integration
             var clienteDto = new ClienteDTO { Nome = "Teste Sucesso", NumeroConta = "123456", Saldo = 2000m };
             var content = new StringContent(JsonSerializer.Serialize(clienteDto), Encoding.UTF8, "application/json");
 
-            var response = await _client.PostAsync("/api/v1/clientes", content);
+            var response = await _client.PostAsync("/api/clientes", content);
 
             response.EnsureSuccessStatusCode(); // Verifica se o status é 2xx
             var responseContent = await response.Content.ReadAsStringAsync();
@@ -53,8 +53,8 @@ namespace apiTransferencia.Tests.Integration
             var clienteDto = new ClienteDTO { Nome = "Teste Duplicado", NumeroConta = "12345", Saldo = 1000m };
             var content = new StringContent(JsonSerializer.Serialize(clienteDto), Encoding.UTF8, "application/json");
 
-            var response = await _client.PostAsync("/api/v1/clientes", content);
-            var responseDuplicado = await _client.PostAsync("/api/v1/clientes", content);
+            var response = await _client.PostAsync("/api/clientes", content);
+            var responseDuplicado = await _client.PostAsync("/api/clientes", content);
 
             responseDuplicado.StatusCode.Should().Be(System.Net.HttpStatusCode.Conflict);
         }
@@ -64,7 +64,7 @@ namespace apiTransferencia.Tests.Integration
         [Fact]
         public async Task Get_ListarClientes_DeveRetornarListaClientes()
         {
-            var response = await _client.GetAsync("/api/v1/clientes");
+            var response = await _client.GetAsync("/api/clientes");
 
             response.EnsureSuccessStatusCode();
 
