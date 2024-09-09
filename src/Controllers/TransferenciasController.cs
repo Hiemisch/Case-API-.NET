@@ -1,6 +1,7 @@
 ﻿using apiTransferencia.DTOs;
 using apiTransferencia.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace apiTransferencia.Controllers
 {
@@ -19,12 +20,20 @@ namespace apiTransferencia.Controllers
         [HttpPost]
         public IActionResult RealizarTransferencia([FromBody] TransferenciaDTO transferenciaDto)
         {
-            var sucesso = _transferenciaService.RealizarTransferencia(transferenciaDto);
+            try
+            {
+                var sucesso = _transferenciaService.RealizarTransferencia(transferenciaDto);
+                if (!sucesso)
+                {
+                    return BadRequest("Transferência inválida. Verifique os detalhes da conta e o saldo.");
+                }
 
-            if (!sucesso)
-                return BadRequest("Transferência não realizada. Verifique as informações e o saldo da conta.");
-
-            return Ok("Transferência realizada com sucesso.");
+                return Ok("Transferência realizada com sucesso.");
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return Conflict("Erro de concorrência detectado. A transferência não pôde ser concluída porque as informações da conta foram alteradas por outro processo.");
+            }
         }
 
         [HttpGet("{numeroConta}")]

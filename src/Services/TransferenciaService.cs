@@ -1,6 +1,7 @@
 ﻿using apiTransferencia.DTOs;
 using apiTransferencia.Models;
 using apiTransferencia.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace apiTransferencia.Services
 {
@@ -18,17 +19,17 @@ namespace apiTransferencia.Services
 
         public bool RealizarTransferencia(TransferenciaDTO transferenciaDto)
         {
-            lock (_lock)
+            var contaOrigem = _clienteRepository.BuscarPorNumeroConta(transferenciaDto.NumeroContaOrigem);
+            var contaDestino = _clienteRepository.BuscarPorNumeroConta(transferenciaDto.NumeroContaDestino);
+
+            if (contaOrigem == null || contaDestino == null || transferenciaDto.Valor <= 0 || transferenciaDto.Valor > 10000 || contaOrigem.Saldo < transferenciaDto.Valor)
             {
-                var contaOrigem = _clienteRepository.BuscarPorNumeroConta(transferenciaDto.NumeroContaOrigem);
-                var contaDestino = _clienteRepository.BuscarPorNumeroConta(transferenciaDto.NumeroContaDestino);
+                RegistrarTransferencia(transferenciaDto, false);
+                return false;
+            }
 
-                if (contaOrigem == null || contaDestino == null || transferenciaDto.Valor <= 0 || transferenciaDto.Valor > 10000 || contaOrigem.Saldo < transferenciaDto.Valor)
-                {
-                    RegistrarTransferencia(transferenciaDto, false);
-                    return false;
-                }
-
+            try
+            {
                 contaOrigem.Saldo -= transferenciaDto.Valor;
                 contaDestino.Saldo += transferenciaDto.Valor;
 
@@ -37,6 +38,10 @@ namespace apiTransferencia.Services
 
                 RegistrarTransferencia(transferenciaDto, true);
                 return true;
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw new InvalidOperationException("Conflito de concorrência detectado ao tentar realizar a transferência.");
             }
         }
 

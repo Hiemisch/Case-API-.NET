@@ -1,4 +1,6 @@
-﻿namespace apiTransferencia.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace apiTransferencia.Models
 {
     public class Cliente
     {
